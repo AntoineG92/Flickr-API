@@ -25,7 +25,8 @@ fluidPage(headerPanel("Flickr interface"),
                   )),
                 radioButtons("select_map",label=h3("Map"),choices = c("Photos & trajets"="trajets","Les plus vues"="vues"),
                              selected="trajets"),
-                leafletOutput("map",height=600)
+                leafletOutput("map",height=600),
+          br()
 )#end fluidPage
 #end UI
 
