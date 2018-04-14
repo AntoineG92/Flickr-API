@@ -1,4 +1,4 @@
-function(input, output) {
+function(input, output, session) {
   
   #charge les données des photos correspondant aux mots clés
   source("Flickr.photos.search.R")
