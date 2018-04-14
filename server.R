@@ -1,4 +1,4 @@
-ShinyServer (function(input, output) {
+function(input, output) {
   
   #charge les données des photos correspondant aux mots clés
   source("Flickr.photos.search.R")
@@ -115,4 +115,4 @@ ShinyServer (function(input, output) {
     }
   })
   
-})#fin de server
+}#fin de server

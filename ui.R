@@ -28,3 +28,4 @@ fluidPage(headerPanel("Flickr interface"),
                 leafletOutput("map",height=600)
 )#end fluidPage
 #end UI
+
