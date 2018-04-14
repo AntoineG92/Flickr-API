@@ -1,4 +1,4 @@
-shinyUI( fluidPage(headerPanel("Flickr interface"),
+fluidPage(headerPanel("Flickr interface"),
                 sidebarLayout(
                   sidebarPanel(
                     dateRangeInput("dates", label = "Période"),
@@ -27,4 +27,4 @@ shinyUI( fluidPage(headerPanel("Flickr interface"),
                              selected="trajets"),
                 leafletOutput("map",height=600)
 )#end fluidPage
-)#end UI
+#end UI
