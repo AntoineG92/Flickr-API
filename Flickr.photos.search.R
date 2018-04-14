@@ -44,8 +44,6 @@ pics<-NULL                              #creates empty object to store the data
 year<-seq(year(date_min),year(date_max),1)
 month_start<-month(date_min)
 month_end<-month(date_max)
-#year<-seq(2017,2017,1)                  #creates variable "year" so that query returns pictures taken between 2005 and 2014
-#woeid<-"23424960"                      #only return pictures taken in Thailand
 woeid<-"1"
 hasgeo<-"1"                             #only return pictures that are geotagged
 extras<-"date_taken,geo,tags,views,url_q"     #extra information to download
@@ -86,13 +84,6 @@ print(paste("keyword is:",keyword))
            getPhotos_data <- xmlRoot(xmlTreeParse(getURL                                    #parse URL and extract root node
                            (getPhotos,ssl.verifypeer=FALSE, useragent = "flickr") ))
 
-           #results are returned in different pages so it is necessary to loop through pages to collect all the data
-           #parse the total number of pages
-           #pages_data <- data.frame(xmlAttrs(getPhotos_data[["photos"]]))
-           #pages_data[] <- lapply(pages_data, as.character)
-           #pages_data[] <- lapply(pages_data, as.integer)
-           #colnames(pages_data)<- "value"
-           #total_pages <- pages_data["pages","value"]
            print( paste( "month ",m,"and year ",year[y]) )
            total_pages<-1
 
