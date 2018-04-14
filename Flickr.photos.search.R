@@ -271,6 +271,11 @@ theme_selection<-function(pics,theme,tag){
   if(tag != ""){
     return( pics[which( grepl( tag, as.character(pics$tags) ) ),] )
   }
+  kw_df=data.frame()
+  kw_df<-rbind(kw_df,pics[which(grepl(theme,as.character(pics$tags))),])
+  kw_df<-kw_df[!duplicated(kw_df),]
+  return( kw_df )
+  
   
   return(pics)
 }
