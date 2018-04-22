@@ -127,7 +127,6 @@ pics<-pics[!duplicated(pics$id),]
 pics$month<-month(ymd_hms(pics$datetaken),label=F)   #create variable month
 pics$year<-year(ymd_hms(pics$datetaken))             #create variable year
 pics$hour<-hour(ymd_hms(pics$datetaken))             #create variable hour
-#pics$min <- min(ymd_hms(pics$datetaken))            #create variable min
 ####Coordinates####
 options(digits=9)
 pics$latitude<-as.numeric(pics$latitude)              #set latitude as numeric
@@ -144,6 +143,8 @@ pics$datetaken<-as.POSIXct(as.character(pics$datetaken),format="%Y-%m-%d %H:%M:%
 
 return(pics)
 } #end of function load_data
+
+
 
 ####Tags####
 #On cherche les tags les plus populaires. Cette fonction permettrait à un user de trouver les mots clés qui
@@ -234,7 +235,7 @@ theme_selection<-function(pics,theme,tag){
   }
   if(theme=="street"){
     kw_df=data.frame()
-    keywords=list("street","streetphotography")
+    keywords=list("street","streetphotography","urban")
     for(word in keywords){
       kw_df<-rbind(kw_df,pics[which(grepl(word,as.character(pics$tags))),])
     }
@@ -280,13 +281,13 @@ reframe_map<-function(pics,radius){
   return( pics[ which(pics$dist_centre < radius*1000) ,  ] )
 }
 
-baseGetURL<- paste("https://api.flickr.com/services/rest/?method=flickr.photos.getsizes&api_key=",api_key,sep="")
-getURLPhoto<-paste(baseGetURL,"&photo_id=","40013469534",sep="")
-getURL_data <- xmlRoot(xmlTreeParse(getURL
-                                    (getURLPhoto,ssl.verifypeer=FALSE, useragent = "flickr")
-                                    ,useInternalNodes = TRUE ))
-url_small<-xpathSApply(getURL_data,"//photo",xmlGetAttr,"source")
-print(paste("url",url_small))
+#baseGetURL<- paste("https://api.flickr.com/services/rest/?method=flickr.photos.getsizes&api_key=",api_key,sep="")
+#getURLPhoto<-paste(baseGetURL,"&photo_id=","40013469534",sep="")
+#getURL_data <- xmlRoot(xmlTreeParse(getURL
+#                                    (getURLPhoto,ssl.verifypeer=FALSE, useragent = "flickr")
+#                                    ,useInternalNodes = TRUE ))
+#url_small<-xpathSApply(getURL_data,"//photo",xmlGetAttr,"source")
+#print(paste("url",url_small))
 
 
 
