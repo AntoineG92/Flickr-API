@@ -1,9 +1,11 @@
+#packages de viz
 library(shiny)
 library(shinyWidgets)
 library(wordcloud)
 library(tm)
 library(memoise)
 library(leaflet)
+library(lubridate)
 
 
 navbarPage("Flickr API", id="nav",

@@ -2,7 +2,7 @@
 # R code to query Flickr API and build a dataframe
 # adapted from Mauricion Alarcon https://rpubs.com/rmalarc/74406
 #####################################################
-
+#packages pour les fonctions de recherche
 library(RCurl)
 library(XML)
 library(httr)
@@ -11,6 +11,7 @@ library(lubridate)
 library(ngram)
 library(sp)
 library(geosphere)
+
 
 api_key<-"6e04d787e6bac178fbf3adff28ffe7b5"      #API key and secret must be obtained from https://www.flickr.com/services/api/misc.api_keys.html
 secret<- "1067e26fcea41a6a"
