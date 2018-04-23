@@ -2,6 +2,7 @@
 # R code to query Flickr API and build a dataframe
 # adapted from Mauricion Alarcon https://rpubs.com/rmalarc/74406
 #####################################################
+
 #packages pour les fonctions de recherche
 library(RCurl)
 library(XML)
@@ -11,21 +12,6 @@ library(lubridate)
 library(ngram)
 library(sp)
 library(geosphere)
-
-
-api_key<-"6e04d787e6bac178fbf3adff28ffe7b5"      #API key and secret must be obtained from https://www.flickr.com/services/api/misc.api_keys.html
-secret<- "1067e26fcea41a6a"
-
-#myapp<-oauth_app("your_app_name_here",key= api_key,secret= secret)                  #creates the app passing the key and secret
-
-#ep<-oauth_endpoint(request="https://www.flickr.com/services/oauth/request_token"    #get authentication credentials from the API
-#                   ,authorize="https://www.flickr.com/services/oauth/authorize",
-#                   access="https://www.flickr.com/services/oauth/access_token")
-
-#sig<-oauth1.0_token(ep,myapp,cache=F)   # il faut re-obtenir la permission à chaque fois
-
-#fl_sig <- sign_oauth1.0(myapp,sig)                                                #authenticate
-
 
 load_data<-function(keyword,date_min,date_max){
   
@@ -37,7 +23,7 @@ load_data<-function(keyword,date_min,date_max){
   }
 
 #permissions
-
+api_key<-"6e04d787e6bac178fbf3adff28ffe7b5" 
 baseURL <- paste("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=",api_key,sep="")   #set base URL
 
 pics<-NULL                              #creates empty object to store the data
@@ -75,35 +61,29 @@ print(paste("keyword is:",keyword))
                       maxdate<-as.character(paste(year[y],paste("0",m,sep="")
                       ,daymax,sep="-")))
            
-          getPhotos<-paste(baseURL,"&text=",keyword,
-                            "&min_taken_date=",mindate,"&max_taken_date=",maxdate,
-                            "&format=rest","&has_geo=1",
-                            "&per_page=",perpage,
-                            "&extras=",extras,
-                            "&has_geo=1","&sort=",sort_photos,sep="")
-           
-           getPhotos_data <- xmlRoot(xmlTreeParse(getURL                                    #parse URL and extract root node
-                           (getPhotos,ssl.verifypeer=FALSE, useragent = "flickr") ))
-
-           print( paste( "month ",m,"and year ",year[y]) )
+          print( paste( "month ",m,"and year ",year[y]) )
            total_pages<-1
 
            pics_tmp<-NULL
 
-           # loop thru pages of photos and save the list in a DF
+           # loop through pages of photos and save the list in a DF
            for(i in c(1:total_pages)){
 
-               getPhotos<-paste(baseURL,"&text=",keyword,
+                #define the path witht the selected filters  
+                getPhotos<-paste(baseURL,"&text=",keyword,
                                 "&min_taken_date=",mindate,"&max_taken_date=",maxdate,
                                 "&format=rest","&has_geo=1",
                                 "&per_page=",perpage,
                                 "&extras=",extras,
                                 "&has_geo=1","&page=",i,sep="")
                
-                getPhotos_data <- xmlRoot(xmlTreeParse(getURL
+                 #get the XML tree of the path above, and find the root of the tree
+                 getPhotos_data <- xmlRoot(xmlTreeParse(getURL
                   (getPhotos,ssl.verifypeer=FALSE, useragent = "flickr")
                   ,useInternalNodes = TRUE ))
 
+                  #get the data by specifying the nodes of the tree where the information is
+                  #xmlGetAttr allows to retrieve the value of each attribute in a specific node
                   id<-xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"id")                 #extract photo id
                   owner<-xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"owner")           #extract user id
                   datetaken<-xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"datetaken")   #extract date picture was taken
@@ -112,7 +92,8 @@ print(paste("keyword is:",keyword))
                   longitude<- xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"longitude")  #extract longitude
                   views<-xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"views")
                   url_small<-xpathSApply(getPhotos_data,"//photo",xmlGetAttr,"url_q")
-
+                  
+                  #build the dataframe
                   tmp_df<-data.frame(cbind(id,owner,datetaken,tags,latitude,longitude,views,url_small),stringsAsFactors=FALSE)
 
                   tmp_df$page <- i
@@ -141,17 +122,10 @@ pics$id<-sapply(pics$id,paste)
 pics$tags<-sapply(pics$tags,paste)
 pics$datetaken<-as.POSIXct(as.character(pics$datetaken),format="%Y-%m-%d %H:%M:%S")
 
-
 return(pics)
 } #end of function load_data
 
-
-
-####Tags####
-#On cherche les tags les plus populaires. Cette fonction permettrait à un user de trouver les mots clés qui
-#apporteront le plus de popularité à ses photos
-#empile tous les tags dans une liste sur l'ensemble des observations
-
+#On cherche les tags les plus populaires. Empile tous les tags dans une liste sur l'ensemble des observations
 tags_df<-function(pics){
   list_tags=c()
   for(i in 1:nrow(pics)){
@@ -170,22 +144,7 @@ tags_df<-function(pics){
   return(count_tags)
 }
 
-recommend_groups<-function(pics){
-  group_id<-pics$group_id
-  group_name=rep(0, nrow(group_id) )
-  baseURL <- paste("https://api.flickr.com/services/rest/?method=flickr.groups.getinfo&api_key=",api_key,sep="")
-  for(g in 1:nrow(group_id) ){
-    getTopGroup<-paste(baseURL,"&group_id=",group_id[g])
-    getTopGroup_data <- xmlRoot(xmlTreeParse(getURL
-                                         (getTopGroup,ssl.verifypeer=FALSE, useragent = "flickr")
-                                         ,useInternalNodes = TRUE ) )
-    group_name[g]<-xpathSApply(getPhotos_data,"//group",xmlGetAttr,"name")
-  }
-  group_name<-data.frame( table(group_name) )
-  group_name<-group_name[ order(group_name$Freq), ]
-  return(group_name)
-}
-
+#Tracage du chemin des photographes à l'aide de leur coordonnées GPS
 user_tracking<-function(pics){
   
   photographers<-unique(pics$owner)              #ID photographers
@@ -219,8 +178,6 @@ user_tracking<-function(pics){
 
 
 #renvoie un dataframe de photos correspondant au theme considéré
-#Thèmes: long exposure, b&w, night, street, sunset/rise, 
-
 theme_selection<-function(pics,theme,tag){
   if(theme=="night"){
     return(pics[which(pics$hour > 20),])
@@ -278,17 +235,8 @@ reframe_map<-function(pics,radius){
   centroid_lat<-rep(1,nrow(pics))*median(pics$latitude)
   centroid_cd<-cbind(centroid_long,centroid_lat)
   pics$dist_centre<-diag(distm(x=centroid_cd,
-                          y=pics[,c('longitude','latitude')], fun = distGeo) )
+                               y=pics[,c('longitude','latitude')], fun = distGeo) )
   return( pics[ which(pics$dist_centre < radius*1000) ,  ] )
 }
-
-#baseGetURL<- paste("https://api.flickr.com/services/rest/?method=flickr.photos.getsizes&api_key=",api_key,sep="")
-#getURLPhoto<-paste(baseGetURL,"&photo_id=","40013469534",sep="")
-#getURL_data <- xmlRoot(xmlTreeParse(getURL
-#                                    (getURLPhoto,ssl.verifypeer=FALSE, useragent = "flickr")
-#                                    ,useInternalNodes = TRUE ))
-#url_small<-xpathSApply(getURL_data,"//photo",xmlGetAttr,"source")
-#print(paste("url",url_small))
-
 
 

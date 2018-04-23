@@ -64,12 +64,6 @@ server<-function(input, output, session) {
     leafletProxy("map")
   })
   
-  #observeEvent(input$theme_tag,{
-  #  tag<-input$theme_tag
-  #  updateSelectizeInput(session, "theme_tag", choices=tags()[,1] ,server=TRUE)
-  #  leafletProxy("map")
-  #})
-
   #word cloud des tags
   output$cloud<-renderPlot({
     word_df<-tags()
