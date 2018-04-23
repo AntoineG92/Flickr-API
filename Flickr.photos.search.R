@@ -146,7 +146,9 @@ tags_df<-function(pics){
 
 #Tracage du chemin des photographes à l'aide de leur coordonnées GPS
 user_tracking<-function(pics){
-  
+  if (is.null(pics)){
+    return()
+  }
   photographers<-unique(pics$owner)              #ID photographers
   final<-list()                                 #Create OJB to store results
   for(i in 1:length(photographers)){            
@@ -175,7 +177,6 @@ user_tracking<-function(pics){
   
   return(realFinal)
 }#end fct
-
 
 #renvoie un dataframe de photos correspondant au theme considéré
 theme_selection<-function(pics,theme,tag){
