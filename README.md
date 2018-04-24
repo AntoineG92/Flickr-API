@@ -17,8 +17,7 @@ require("shinyWidgets")\
 require("wordcloud")\
 require("tm")\
 require("memoise")\
-require("leaflet")\
-require("lubridate")
+require("leaflet")
 
 if(interactive()){\
   runGitHub("Flickr-API","AntoineG92")\
