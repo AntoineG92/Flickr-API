@@ -26,7 +26,9 @@ navbarPage("Flickr API", id="nav",
                       btnReset = icon("remove"),
                       width = "450px"),
                     h3("Filtres"),
-                    sliderInput( "range_hour",label="Heure",min=0,max=23,value=c(0,23) ),
+                    #sliderInput( "range_hour",label="Heure",min=0,max=23,value=c(0,23),step=1 ),
+                    fluidRow(column(6,selectInput("range_hour_min",label="heure min",choices = seq(0,23),selected=0) ),
+                             column(6,selectInput("range_hour_max",label="heure max",choices = seq(0,23),selected = 23) )),
                     selectInput("theme",label="Sélectionne thème", 
                                 choices = list("black & white"="black & white","night"="night","street"="street","sunset"="sunset","sunrise"="sunrise","--selection--"="select_theme"),
                                 selected = "select_theme"),
@@ -35,10 +37,10 @@ navbarPage("Flickr API", id="nav",
                                  selected="vues")
                           ),#end main panel
               absolutePanel(class = "panel panel-default", fixed = TRUE,
-              draggable = TRUE, bottom=20,left=20,width="250px",height="auto",style="opacity:0.70",h2("Visualisation"),
-              plotOutput("cloud",height="240px",width="240px"),
-              plotOutput("hist_hour",height="200px",width="240px"),
-              plotOutput("hist_month",height="200px",width="240px") )#end second panel
+              draggable = TRUE, bottom=20,left=20,width="260px",height="auto",style="opacity:0.70",h2("Visualisation"),
+              plotOutput("cloud",height="240px",width="260px"),
+              plotOutput("hist_hour",height="200px",width="260px"),
+              plotOutput("hist_month",height="200px",width="260px") )#end second panel
 
 
 )#end navbarPage

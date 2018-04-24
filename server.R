@@ -12,6 +12,8 @@ server<-function(input, output, session) {
   load_pics<-eventReactive(c(input$keyword,input$dates),{
     req(input$keyword)
     key<-input$keyword
+    updateSelectInput(session,inputId = "keyword")
+    updateDateRangeInput(session,inputId = "dates")
     data<-load_data(key,input$dates[1],input$dates[2])
     #zoom au bon endroit
     leafletProxy("map") %>%
@@ -20,12 +22,12 @@ server<-function(input, output, session) {
   })
   
   #update et retourne les données correspondant à l'intervalle sélectionné dans l'interface et les différents keywords
-  pics<-eventReactive (c(input$keyword,input$range_hour,input$theme,input$theme_tag),{
+  pics<-eventReactive (c(input$keyword,input$range_hour_min,input$range_hour_max,input$theme,input$theme_tag,input$dates),{
     data<-load_pics()
     if(!is.null(data)){
-    tags_vect<-tags_df(data)
     #subset par heure
-    data<-data[ which(data$hour >= input$range_hour[1] & data$hour <= input$range_hour[2]), ]
+    data<-data[ which(data$hour >= input$range_hour_min ), ]
+    data<-data[ which(data$hour <= input$range_hour_max), ]
     #subset par theme
     if(input$theme != "select_theme"){
       data<-theme_selection(data,input$theme,"")
@@ -44,16 +46,14 @@ server<-function(input, output, session) {
   output$hist_hour<-renderPlot({
     data<-pics()
     agg_hour<-aggregate(data$views,by=list(data$hour),FUN=sum)[2]
-    #agg_hour<-data.frame(table(data$hour))
-    barplot(agg_hour$x,main = "Nombre de photos vues \n cumulées par heure", col = "blue",xlab="Heure",ylab="# de photos vues",
-            names.arg = seq(1,nrow(agg_hour)) ,border=NA)
+    barplot(agg_hour$x,main = "Nombre de photos vues \n cumulées par heure", col = "blue",xlab="Heure",names.arg=sort(unique(data$hour)),
+            border=NA)
   })
   #histo popularité en fonction du mois de l'année
   output$hist_month<-renderPlot({
     data<-pics()
     agg_month<-aggregate(data$views,by=list(data$month),FUN=sum)[2]
-    #agg_month<-data.frame(table(data$month))
-    barplot(agg_month$x,main = "Nombre de photos vues \n cumulées par mois",xlab="Mois",ylab="# de photos vues",
+    barplot(agg_month$x,main = "Nombre de photos vues \n cumulées par mois",xlab="Mois",
             names.arg = seq(1,nrow(agg_month)),col = '#00DD00',border = 'white')
   })
   
@@ -90,12 +90,12 @@ server<-function(input, output, session) {
                         & (longitude > quantile(longitude,0.05))
                         & (longitude < quantile(longitude,0.95)) )
         #update la map
-        m <- leafletProxy("map",data=pics) %>% clearShapes() %>%
-          addMarkers(data = pics, 
-                     lng = ~longitude, 
-                     lat = ~latitude,
-                     clusterOptions = markerClusterOptions(), layerId = ~id,
-                     popup = ~paste0("<img src = ", url_small, ">") )
+        m <- leafletProxy("map",data=pics) %>% clearShapes()
+        # %>% addMarkers(data = pics, 
+        #             lng = ~longitude, 
+        #             lat = ~latitude,
+        #             clusterOptions = markerClusterOptions(), layerId = ~id,
+        #             popup = ~paste0("<img src = ", url_small, ">") )
         for (i in unique(pics$label)) {
           m <- m %>% 
             addPolylines(data = pics[pics$label == i, ], 
